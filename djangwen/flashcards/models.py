@@ -1,3 +1,6 @@
+import math
+from collections import defaultdict
+from datetime import datetime
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
@@ -29,16 +32,14 @@ class Card(models.Model):
 
 class UserCard(models.Model):
     ease = models.IntegerField(default=1)
-    last_time = models.DateTimeField()
-    priority = models.BooleanField()
-    learning = models.BooleanField()  # for reprioritisation
-    sorted = models.BooleanField()
+    last_time = models.DateTimeField(null=True)
+    priority = models.BooleanField(default=False)
+    learning = models.BooleanField(default=False)  # for reprioritisation
+    sorted = models.BooleanField(default=False)
     to_study = models.BooleanField(default=True)
 
     card = models.OneToOneField(Card, on_delete=models.CASCADE)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-
-    deck = models.Many
 
     def known(self, multiplier):
         self.ease *= multiplier
@@ -71,36 +72,34 @@ class UserDeck(models.Model):
     card_counter = models.IntegerField(default=0)
     multiplier = models.IntegerField(default=2)
     entry_interval = models.IntegerField(default=5)
-    last_date = models.DateField(auto_now_add=True)
+    last_date = models.DateField(null=True)
 
     cards = models.ManyToManyField(UserCard)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
+    @property
     def card_total(self):
-        return len(self.cards)
+        return len(self.cards.all())
 
     def populate(self, deck):
         self.deck = deck
         self.name = deck.name
         for c in deck.cards:
-            self.cards.append(
-                UserCard(card=c)
-            )
-        db.session.add(deck)
-        db.session.add(self)
-        db.session.commit()
+            uc = UserCard(card=c)
+            uc.save()
+            self.cards.add(uc)
 
     def organise_cards(self):
-        self.seen_cards = [c for c in self.cards if c.last_time is not None]
-        self.unseen_cards = [c for c in self.cards if c.last_time is None]
-        self.learning_cards = [c for c in self.cards if c.learning]
+        self.seen_cards = self.cards.filter(last_time__isnull=False).all()
+        self.unseen_cards = self.cards.filter(last_time__isnull=True).all()
+        self.learning_cards = self.cards.filter(learning=True).all()
 
     def shuffle(self):
         self.organise_cards()
         if len(self.seen_cards) == 0:
-            for c in self.unseen_cards[0:self.card_number]:
+            card_number = min(self.card_number, self.card_total)
+            for c in self.unseen_cards[0:card_number]:
                 c.learning = True
-            db.session.commit()
             return
 
         min_time = min(self.seen_cards, key=lambda c: c.last_time).last_time
@@ -129,8 +128,6 @@ class UserDeck(models.Model):
                 if counter == self.new_card_number:
                     break
 
-        db.session.commit()
-
     def get_learning_cards(self):
         if len([c for c in self.cards if c.learning]) == 0:
             self.shuffle()
@@ -156,7 +153,6 @@ class UserDeck(models.Model):
                 card.known(self.multiplier)
             elif result == 'x':
                 card.unknown(self.multiplier)
-        db.session.commit()
 
     def process_sort(self, outcomes):
         for i in range(0, len(outcomes) - 1):
@@ -169,7 +165,6 @@ class UserDeck(models.Model):
             elif result == 'x':
                 card.to_study = True
             card.sorted = True
-        db.session.commit()
 
     def get_unsorted_cards(self):
         return [c for c in self.cards if not c.sorted]
@@ -192,7 +187,7 @@ class UserDeck(models.Model):
 
     def get_display_cards(self):
         cards = defaultdict(list)
-        for c in self.cards:
+        for c in self.cards.all():
             if c.to_study:
                 cards[1].append(c)
             else:
