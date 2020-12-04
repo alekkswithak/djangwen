@@ -81,6 +81,27 @@ class UserDeck(models.Model):
     def card_total(self):
         return len(self.cards.all())
 
+    @property
+    def get_learning_cards(self):
+        cards = self.cards.filter(learning=True).all()
+        if len(cards) == 0:
+            self.shuffle()
+            cards = self.cards.filter(learning=True).all()
+        return cards
+
+    @property
+    def get_unsorted_cards(self):
+        return self.cards.filter(sorted=False).all()
+
+    @property
+    def seen_total(self):
+        cards = self.cards.filter(to_study=False, last_time__isnull=False).all()
+        return len(cards)
+
+    @property
+    def to_study_total(self):
+        return len(self.cards.filter(to_study=True).all())
+
     def populate(self, deck):
         self.deck = deck
         self.name = deck.name
@@ -128,11 +149,6 @@ class UserDeck(models.Model):
                 if counter == self.new_card_number:
                     break
 
-    def get_learning_cards(self):
-        if len([c for c in self.cards if c.learning]) == 0:
-            self.shuffle()
-        return [c for c in self.cards if c.learning]
-
     def play_outcomes(self, outcomes):
         """
         plays as many cards as there are in outcomes
@@ -147,7 +163,7 @@ class UserDeck(models.Model):
         for i in range(0, len(outcomes) - 1):
             outcome_row = outcomes[str(i+1)]
             card_id = int(outcome_row.get('id'))
-            card = UserCard.query.get(card_id)
+            card = UserCard.objects.get(card_id)
             result = outcome_row.get('result')
             if result == 'z':
                 card.known(self.multiplier)
@@ -158,16 +174,13 @@ class UserDeck(models.Model):
         for i in range(0, len(outcomes) - 1):
             outcome_row = outcomes[str(i+1)]
             card_id = int(outcome_row.get('id'))
-            card = UserCard.query.get(card_id)
+            card = UserCard.objects.get(card_id)
             result = outcome_row.get('result')
             if result == 'z':
                 card.to_study = False
             elif result == 'x':
                 card.to_study = True
             card.sorted = True
-
-    def get_unsorted_cards(self):
-        return [c for c in self.cards if not c.sorted]
 
     def get_flash_cards(self, sorting=False):
         flash_cards = []
@@ -193,11 +206,3 @@ class UserDeck(models.Model):
             else:
                 cards[2].append(c)
         return cards
-
-    def seen_total(self):
-        to_study = [c for c in self.cards if c.to_study]
-        return len([c for c in to_study if c.last_time])
-
-    def to_study_total(self):
-        return len([c for c in self.cards if c.to_study])
-
