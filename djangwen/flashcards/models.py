@@ -30,6 +30,33 @@ class Card(models.Model):
     frequency = models.IntegerField(default=0)
 
 
+class Deck(models.Model):
+    type = models.CharField(max_length=64)
+    name = models.CharField(max_length=64)
+
+    cards = models.ManyToManyField(Card)
+
+    def __repr__(self):
+        return '<Deck "{}">'.format(self.name)
+
+    @property
+    def card_total(self):
+        return len(self.cards.all())
+
+    @classmethod
+    def get_all_json(cls, type=None):
+        if type is None:
+            type = cls.type
+        decks = cls.objects.filter_by(type=type)
+        decks_json = {}
+        for d in decks:
+            if d.language in decks_json:
+                decks_json[d.language].append(d)
+            else:
+                decks_json[d.language] = [d]
+        return decks_json
+
+
 class UserCard(models.Model):
     ease = models.IntegerField(default=1)
     last_time = models.DateTimeField(null=True)
