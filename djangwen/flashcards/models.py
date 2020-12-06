@@ -1,3 +1,4 @@
+import abc
 import math
 from collections import defaultdict
 from datetime import datetime
@@ -28,6 +29,49 @@ def save_user_profile(sender, instance, **kwargs):
 class Card(models.Model):
     name = models.CharField(max_length=64)
     frequency = models.IntegerField(default=0)
+
+    @abc.abstractmethod
+    def get_questions(self):
+        return
+
+    @abc.abstractmethod
+    def get_answers(self):
+        return
+
+    def get_dict(self):
+        return {
+            'id': self.id,
+            'questions': self.get_questions(),
+            'answers': self.get_answers()
+        }
+
+
+class Word(Card):
+    zi_simp = models.CharField(max_length=16)
+    zi_trad = models.CharField(max_length=16)
+    pinyin_number = models.CharField(max_length=128)
+    pinyin_tone = models.CharField(max_length=128)
+    english = models.CharField(max_length=256)
+    hsk = models.IntegerField(default=0)
+
+    def __repr__(self):
+        return '<{}>'.format(self.zi_simp)
+
+    def get_questions(self):
+        q = (
+            self.zi_simp,
+            self.zi_trad
+        )
+        return q
+
+    def get_answers(self):
+        pinyin = self.pinyin_tone if self.pinyin_tone else self.pinyin_number
+        a = (
+            pinyin,
+            self.english
+        )
+        return a
+
 
 
 class Deck(models.Model):
