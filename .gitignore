@@ -1,10 +1,4 @@
-/venv/*
-/__pycache__/*
-/notes.txt
-/migrations/*
-app/__pycache__/*
-tests/__pycache__/*
-app/scraper/__pycache__/*
-/app.db
-.vscode/settings.json
-*/__pycache__/*
+venv/*
+djangwen/db.sqlite3
+djangwen/flashcards/migrations/*
+djangwen/flashcards/__pycache__/*
