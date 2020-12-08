@@ -73,6 +73,58 @@ class Word(Card):
         return a
 
 
+class Character(Card):
+    zi_simp = models.CharField(max_length=1)
+    zi_trad = models.CharField(max_length=1)
+    pinyin_number = models.CharField(max_length=8)
+    pinyin_tone = models.CharField(max_length=8)
+    english = models.CharField(max_length=256)
+    hsk = models.IntegerField(default=0)
+
+    def __repr__(self):
+        return '<{}>'.format(self.zi_simp)
+
+    def get_questions(self):
+        q = (
+            self.zi_simp,
+            self.zi_trad
+        )
+        return q
+
+    def get_answers(self):
+        pinyin = self.pinyin_tone if self.pinyin_tone else self.pinyin_number
+        a = (
+            pinyin,
+            self.english
+        )
+        return a
+
+
+class Sentence(Card):
+    zi_simp = models.CharField(max_length=256)
+    zi_trad = models.CharField(max_length=256)
+    pinyin_number = models.CharField(max_length=1024)
+    pinyin_tone = models.CharField(max_length=1024)
+    english = models.CharField(max_length=1024)
+
+    def __repr__(self):
+        return '<{}>'.format(self.zi_simp)
+
+    def get_questions(self):
+        q = (
+            self.zi_simp,
+            self.zi_trad
+        )
+        return q
+
+    def get_answers(self):
+        pinyin = self.pinyin_tone if self.pinyin_tone else self.pinyin_number
+        a = (
+            pinyin,
+            self.english
+        )
+        return a
+
 
 class Deck(models.Model):
     type = models.CharField(max_length=64)
