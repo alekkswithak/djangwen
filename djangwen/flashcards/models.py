@@ -153,6 +153,16 @@ class Deck(models.Model):
         return decks_json
 
 
+class ArticleDeck(Deck):
+    url = models.CharField(max_length=64)
+    counted = models.BooleanField(default=False)
+
+
+class ClipDeck(Deck):
+    text = models.TextField()
+    counted = models.BooleanField(default=False)
+
+
 class UserCard(models.Model):
     ease = models.IntegerField(default=1)
     last_time = models.DateTimeField(null=True)
