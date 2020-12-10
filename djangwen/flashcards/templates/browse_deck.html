@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<br>
+<div class='container'>
+    <h2>{{ deck.name }} - all cards</h2>
+
+    {% include 'cards_component.html' %}
+
+</div>
+{% endblock %}

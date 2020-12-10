@@ -1,0 +1,20 @@
+{% block content %}
+<div class="row">
+    {% for c in cards %}
+    <div class="col-sm-3">
+        <br>
+        <div class='card'>
+            <div class="card-body">
+                <h2>{{ c.get_questions[0] }}</h2>
+                <ul class="list-unstyled">
+                    {% for a in c.get_answers[0:2] %}
+                    <li>{{ a }}</li>
+                    {% endfor %}
+                    <li>{{ c.frequency }}</li>
+                    </ul>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
