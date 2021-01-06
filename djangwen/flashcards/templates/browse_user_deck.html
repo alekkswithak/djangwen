@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<br>
+<div class='container'>
+    <h2>{{ deck.name }} - all cards</h2>
+
+    {% for type, cards in user_cards.items() %}
+    {% if type==1 %}
+        <h3>To study</h3>
+    {% elif type==2 %}
+        <h3>Not to study</h3>
+    {% endif %}
+
+    {% include 'user_cards_component.html' %}
+    {% endfor %}
+</div>
+{% endblock %}
