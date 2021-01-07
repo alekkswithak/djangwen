@@ -2,3 +2,5 @@ venv/*
 djangwen/db.sqlite3
 djangwen/flashcards/migrations/*
 djangwen/flashcards/__pycache__/*
+djangwen/djangwen/__pycache__/*
+djangwen/flashcards/management/commands/__pycache__/*

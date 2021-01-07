@@ -1,0 +1,41 @@
+{% block content %}
+
+<button id='toggle'>Add to custom deck</button>
+
+<form action="{{ url_for('update_custom_deck') }}" method="post">
+  <div id='add-cards-dropdown' style="display: none;">
+    <label>Custom Deck:</label>
+    <select id="custom_deck_select" name="custom-deck">
+    {% for cd in custom_decks %}
+      <option value="{{ cd.id }}">{{ cd.name }}</option>
+    {% endfor %}
+    </select>
+    <input type="submit">
+
+  </div>
+
+    <div class="row">
+        {% for c in cards %}
+        <div class="col-sm-3">
+            <br>
+            <div class='card'>
+                <div class="card-body">
+                    <div class="checkbox" id="add-check" style="display: none;">
+                        <input type="checkbox" name="card-id" value="{{ c.id }}">
+                    </div>
+                    <h2>{{ c.get_questions()[0] }}</h2>
+                    <ul class="list-unstyled">
+                        {% for a in c.get_answers()[0:2] %}
+                        <li>{{ a }}</li>
+                        {% endfor %}
+                        <li>{{ c.card.frequency }}</li>
+                        </ul>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+</form>
+{% endblock %}
+
