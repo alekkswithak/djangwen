@@ -1,0 +1,44 @@
+{% block content %}
+<br>
+<div class="container">
+    <h2>Decks</h2>
+        {% if user_decks %}
+        <div class="table-responsive table-hover">
+        <table class="table">
+        <thead>
+            <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Unique</th>
+            <th>To Study</th>
+            <th>Seen</th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for d in user_decks %}
+            <tr>
+                <td>{{ d.id }}</td>
+                {% if d.deck.url %}
+                <td><a href="{{ d.deck.url }}">{{ d.deck.name }}</a></td>
+                {% else %}
+                <td>{{ d.name }}</td>
+                {% endif %}
+                <td>{{ d.card_total }}</td>
+                <td>{{ d.to_study_total }}</td>
+                <td>{{ d.seen_total }}</td>
+                <td><a href={{  }}>Sort</a></td>
+                <td><a href={{  }}>Browse</a></td>
+                <td><a href={{  }}>Play</a></td>
+                <td><a href={{  }}>Settings</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        </table>
+        </div>
+        {% endif %}
+  </div>
+{% endblock %}
